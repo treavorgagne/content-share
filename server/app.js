@@ -1,14 +1,28 @@
-const http = require('http');
+const express = require('express');
+const mongoClient = require('./assets/mongoClient.js');
 
-const hostname = '127.0.0.1';
+const app = express();
 const port = 8000;
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World');
+/**
+ * Route to get the images of all the recipes for the home page.
+ */
+app.get('/', async (req, res) => {
+  const collection = mongoClient
+    .db('mongodbVSCodePlaygroundDB')
+    .collection('sales');
+  const items = collection.find({});
+  const allPhotos = await items.toArray();
+  res.send(allPhotos);
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+/**
+ * Route to add a recipe to the mongo database.
+ */
+app.post('/add', async (req, res) => {
+  const dinner = mongoClient.db('Recipes').collection('Dinner');
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening on port ${port}`);
 });
