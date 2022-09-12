@@ -20,6 +20,7 @@ import {
   Td,
   Table,
   Checkbox,
+  useToast,
 } from '@chakra-ui/react';
 import { Header } from './components/Header';
 
@@ -39,6 +40,8 @@ function App() {
   const [ingredientUnit, setIngredientUnit] = useState('tbs');
   const [ingredientName, setIngredientName] = useState('');
 
+  const toast = useToast();
+
   useEffect(() => {
     const savedStateDirections = window.localStorage.getItem('directions');
     if (savedStateDirections !== null)
@@ -49,7 +52,7 @@ function App() {
       setIngredients(JSON.parse(savedStateIngredients));
 
     const recipeState = window.localStorage.getItem('recipe');
-    if (recipe !== null) setRecipe(recipeState);
+    if (recipeState !== null) setRecipe(recipeState);
   }, []);
 
   useEffect(() => {
@@ -135,15 +138,57 @@ function App() {
   };
 
   const handleSubmit = () => {
-    axiosClient
-      .post('/addRecipe', {
-        recipe: recipe,
-        ingredients: ingredients,
-        directions: directions,
-      })
-      .then(response => {
-        console.log(response);
+    if (ingredients.length === 0) {
+      toast({
+        title: 'Error',
+        description: `Failed to add recipe. Ingredients list cannot be empty.`,
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
       });
+    } else if (directions.length === 0) {
+      toast({
+        title: 'Error',
+        description: `Failed to add recipe. Directions list cannot be empty.`,
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
+    } else if (recipe === '') {
+      toast({
+        title: 'Error',
+        description: `Failed to add recipe. Recipe name cannot be empty.`,
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
+    } else {
+      axiosClient
+        .post('/addRecipe', {
+          recipe: recipe,
+          ingredients: ingredients,
+          directions: directions,
+        })
+        .then(res => {
+          if (res.status === 200) {
+            toast({
+              title: 'Recipe created.',
+              description: `${recipe} added to recipes. Feel free to add more.`,
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+            });
+            document.getElementById('step').value = '';
+            document.getElementById('ingredientName').value = '';
+            document.getElementById('recipeName').value = '';
+            setStep('');
+            setRecipe([]);
+            setIngredients([]);
+            setDirections([]);
+            setIngredientName('');
+          }
+        });
+    }
   };
 
   return (
@@ -162,21 +207,6 @@ function App() {
               <form onSubmit={handleSubmit}>
                 <FormControl>
                   <Stack>
-                    <FormLabel>Type</FormLabel>
-                    <Stack justifyContent={'space-around'} direction="row">
-                      <Checkbox size="lg" value="Dinner">
-                        Dinner
-                      </Checkbox>
-                      <Checkbox size="lg" value="Lunch">
-                        Lunch
-                      </Checkbox>
-                      <Checkbox size="lg" value="Breakfast">
-                        Breakfast
-                      </Checkbox>
-                      <Checkbox size="lg" value="Snack">
-                        Snack
-                      </Checkbox>
-                    </Stack>
                     <FormLabel>Recipe Name</FormLabel>
                     <Input
                       isRequired

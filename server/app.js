@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // cors initialization
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header(
     'Access-Control-Allow-Headers',
@@ -61,12 +61,11 @@ app.post('/addRecipe', async (req, res) => {
     ingredients: req.body.ingredients,
   };
 
-  console.log(data);
-
   const result = await meal.insertOne(data);
 
-  console.log(result);
-  // res.status(200).send('Hello World');
+  if (result.acknowledged === true) {
+    res.status(200).send({ result: result });
+  }
 });
 
 app.listen(port, () => {
