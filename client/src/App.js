@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   ChakraProvider,
   Box,
@@ -22,6 +23,10 @@ import {
 } from '@chakra-ui/react';
 import { Header } from './components/Header';
 
+const axiosClient = axios.create({
+  baseURL: 'http://localhost:8000',
+});
+
 function App() {
   const [recipe, setRecipe] = useState('');
 
@@ -44,7 +49,6 @@ function App() {
       setIngredients(JSON.parse(savedStateIngredients));
 
     const recipeState = window.localStorage.getItem('recipe');
-    console.log('load state', recipeState);
     if (recipe !== null) setRecipe(recipeState);
   }, []);
 
@@ -131,7 +135,15 @@ function App() {
   };
 
   const handleSubmit = () => {
-    console.log(`Making ${recipe} mother fuckers`);
+    axiosClient
+      .post('/addRecipe', {
+        recipe: recipe,
+        ingredients: ingredients,
+        directions: directions,
+      })
+      .then(response => {
+        console.log(response);
+      });
   };
 
   return (
@@ -209,9 +221,9 @@ function App() {
                         <option value="tps">tps</option>
                         <option value="mL">mL</option>
                         <option value="L">L</option>
-                        <option value="grams">g</option>
-                        <option value="large">kg</option>
-                        <option value="large">oz</option>
+                        <option value="grams">grams</option>
+                        <option value="kilograms">kilograms</option>
+                        <option value="oz">oz</option>
                         <option value="pinch">pinch</option>
                         <option value="dash">dash</option>
                         <option value="small">small</option>

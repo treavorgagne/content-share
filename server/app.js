@@ -1,24 +1,36 @@
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config();
 }
+
+var bodyParser = require('body-parser');
 const express = require('express');
 const mongoClient = require('./assets/mongoClient.js');
 
 const app = express();
 const port = process.env.PORT || 8000;
 
+// parse application/x-www-form-urlencoded & parse application/json
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+// cors initialization
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  next();
+});
+
 /**
  * Route to get the images of all the recipes for the home page.
  */
 app.get('/', async (req, res) => {
-  const collection = mongoClient.db('Recipes').collection('Dinner');
-  const cursor = collection.find({});
-  const all = await cursor.toArray();
-  res.send(all);
-  await cursor.close();
+  res.status(200).send('Hello World');
 });
 
-app.get('/dinner:id', async (req, res) => {
+app.get('/dinner', async (req, res) => {
   const collection = mongoClient.db('Recipes').collection('Dinner');
   const cursor = collection.find({});
   const dinner = await cursor.toArray();
@@ -36,9 +48,25 @@ app.get('/', async (req, res) => {
 
 /**
  * Route to add a recipe to the mongo database.
+ * @param gets recipe name
+ * @param gets list of directions
+ * @param gets list of objects for every ingredients
  */
-app.post('/add', async (req, res) => {
+app.post('/addRecipe', async (req, res) => {
   const meal = mongoClient.db('Recipes').collection('Dinner');
+
+  const data = {
+    name: req.body.recipe,
+    directions: req.body.directions,
+    ingredients: req.body.ingredients,
+  };
+
+  console.log(data);
+
+  const result = await meal.insertOne(data);
+
+  console.log(result);
+  // res.status(200).send('Hello World');
 });
 
 app.listen(port, () => {
