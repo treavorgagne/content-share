@@ -270,7 +270,18 @@ function App() {
             <Box w={'100%'}>
               <Stack direction={'column'}>
                 <FormLabel> Ingredient List</FormLabel>
-                <Box maxH={'35vh'} overflow="scroll">
+                <Box
+                  maxH={'35vh'}
+                  overflowY="auto"
+                  __css={{
+                    '&::-webkit-scrollbar': { w: '2' },
+                    '&::-webkit-scrollbar-track': { w: '6' },
+                    '&::-webkit-scrollbar-thumb': {
+                      borderRadius: '10',
+                      bg: 'blue.200',
+                    },
+                  }}
+                >
                   <TableContainer>
                     <Table size={'sm'} variant="striped" colorScheme="teal">
                       <Thead>
@@ -305,7 +316,18 @@ function App() {
                   </TableContainer>
                 </Box>
                 <FormLabel> Recipe Directions</FormLabel>
-                <Box maxH={'35vh'} overflow="scroll">
+                <Box
+                  maxH={'35vh'}
+                  overflowY="auto"
+                  __css={{
+                    '&::-webkit-scrollbar': { w: '2' },
+                    '&::-webkit-scrollbar-track': { w: '6' },
+                    '&::-webkit-scrollbar-thumb': {
+                      borderRadius: '10',
+                      bg: 'blue.200',
+                    },
+                  }}
+                >
                   <TableContainer>
                     <Table size={'sm'} variant="striped" colorScheme="teal">
                       <Thead>
