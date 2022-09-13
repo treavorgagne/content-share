@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
   Box,
   FormControl,
@@ -18,7 +17,7 @@ import {
   Table,
   useToast,
 } from '@chakra-ui/react';
-
+import axios from 'axios';
 const axiosClient = axios.create({
   baseURL: 'http://localhost:8000',
 });

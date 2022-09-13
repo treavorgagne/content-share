@@ -30,19 +30,12 @@ app.get('/', async (req, res) => {
   res.status(200).send('Hello World');
 });
 
-app.get('/dinner', async (req, res) => {
+app.get('/allRecipes', async (req, res) => {
   const collection = mongoClient.db('Recipes').collection('Dinner');
   const cursor = collection.find({});
-  const dinner = await cursor.toArray();
-  res.send(dinner);
-  await cursor.close();
-});
-
-app.get('/', async (req, res) => {
-  const collection = mongoClient.db('Recipes').collection('Dinner');
-  const cursor = collection.find({});
-  const dinner = await cursor.toArray();
-  res.send(dinner);
+  const recipes = await cursor.toArray();
+  console.log(recipes);
+  res.send(recipes);
   await cursor.close();
 });
 
