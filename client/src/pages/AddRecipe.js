@@ -23,19 +23,28 @@ const axiosClient = axios.create({
 });
 
 export function AddRecipe() {
+  // recipe name state
   const [recipe, setRecipe] = useState('');
 
+  // recipe image state
+  const [recipeImgName, setRecipeImgName] = useState('');
+  const [recipeImg, setRecipeImg] = useState();
+
+  // recipe directions state list
   const [directions, setDirections] = useState([]);
   const [step, setStep] = useState('');
 
+  // recipe ingredients state list object
   const [ingredients, setIngredients] = useState([]);
   const [ingredientOption, setIngredientOption] = useState(true);
   const [ingredientAmount, setIngredientAmount] = useState(1);
   const [ingredientUnit, setIngredientUnit] = useState('tbs');
   const [ingredientName, setIngredientName] = useState('');
 
+  // for poppup banner
   const toast = useToast();
 
+  // on load use effect
   useEffect(() => {
     const savedStateDirections = window.localStorage.getItem('directions');
     if (savedStateDirections !== null)
@@ -49,6 +58,7 @@ export function AddRecipe() {
     if (recipeState !== null) setRecipe(recipeState);
   }, []);
 
+  // use effect to set locale storage when any of the form data changes
   useEffect(() => {
     const newIngredient = JSON.stringify([...ingredients]);
     localStorage.setItem('ingredients', newIngredient);
@@ -63,22 +73,44 @@ export function AddRecipe() {
     localStorage.setItem('recipe', recipe);
   }, [recipe]);
 
+  // function to handle when new ingredient is added to the list
   const handleIngredientAdd = () => {
-    if (ingredientName !== '') {
-      setIngredients(prev => {
-        return [
-          {
-            required: ingredientOption,
-            amount: ingredientAmount,
-            ingredient: ingredientName,
-            metric: ingredientUnit,
-          },
-          ...prev,
-        ];
+    if (ingredientName === '') {
+      toast({
+        title: 'Missing Ingredient Name',
+        description: `Field must be complete`,
+        status: 'warning',
+        duration: 6000,
+        isClosable: true,
       });
-      document.getElementById('ingredientName').value = '';
-      setIngredientName('');
+
+      return;
     }
+
+    if (ingredientAmount === '') {
+      toast({
+        title: 'Missing Ingredient Amount',
+        description: `Field must be complete`,
+        status: 'warning',
+        duration: 6000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    setIngredients(prev => {
+      return [
+        {
+          required: ingredientOption,
+          amount: ingredientAmount,
+          ingredient: ingredientName,
+          metric: ingredientUnit,
+        },
+        ...prev,
+      ];
+    });
+    document.getElementById('ingredientName').value = '';
+    setIngredientName('');
   };
 
   const handleOptionChange = ({ target }) => {
@@ -99,6 +131,25 @@ export function AddRecipe() {
 
   const handleNameChange = ({ target }) => {
     setIngredientName(target.value);
+  };
+
+  const handleImageChange = async e => {
+    const file = e.target.files[0];
+    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+    if (fileSize > 1.0) {
+      toast({
+        title: 'Warning',
+        description: `Image cannot be larger than 1 MB.`,
+        status: 'warning',
+        duration: 9000,
+        isClosable: true,
+      });
+      e.target.value = null;
+    } else {
+      console.log(file);
+      setRecipeImgName(file.name);
+      setRecipeImg(file);
+    }
   };
 
   const handleIngredientDelete = targetIndex => {
@@ -134,54 +185,88 @@ export function AddRecipe() {
   const handleSubmit = () => {
     if (ingredients.length === 0) {
       toast({
-        title: 'Error',
+        title: 'Warning',
         description: `Failed to add recipe. Ingredients list cannot be empty.`,
-        status: 'error',
+        status: 'warning',
         duration: 9000,
         isClosable: true,
       });
     } else if (directions.length === 0) {
       toast({
-        title: 'Error',
+        title: 'Warning',
         description: `Failed to add recipe. Directions list cannot be empty.`,
-        status: 'error',
+        status: 'warning',
+        duration: 9000,
+        isClosable: true,
+      });
+    } else if (recipeImg === undefined) {
+      toast({
+        title: 'Warning',
+        description: `Failed to add recipe. Please set recipe image.`,
+        status: 'warning',
         duration: 9000,
         isClosable: true,
       });
     } else if (recipe === '') {
       toast({
-        title: 'Error',
+        title: 'Warning',
         description: `Failed to add recipe. Recipe name cannot be empty.`,
-        status: 'error',
+        status: 'warning',
         duration: 9000,
         isClosable: true,
       });
     } else {
+      // axiosClient
+      //   .post('/addRecipe', {
+      //     recipe: recipe,
+      //     ingredients: ingredients,
+      //     directions: directions,
+      //     recipeImgName: recipeImgName,
+      //   })
+      //   .then(res => {
+      //     if (res.status === 200) {
+      //       toast({
+      //         title: 'Recipe created.',
+      //         description: `${recipe} added to recipes. Feel free to add more.`,
+      //         status: 'success',
+      //         duration: 9000,
+      //         isClosable: true,
+      //       });
+      //       document.getElementById('step').value = '';
+      //       document.getElementById('ingredientName').value = '';
+      //       document.getElementById('recipeName').value = '';
+      //       setStep('');
+      //       setRecipe([]);
+      //       setIngredients([]);
+      //       setDirections([]);
+      //       setIngredientName('');
+      //     }
+      //   })
+      //   .then(() => {
+      console.log(recipeImg);
       axiosClient
-        .post('/addRecipe', {
-          recipe: recipe,
-          ingredients: ingredients,
-          directions: directions,
+        .post('/uploadImage', {
+          file: recipeImg,
+          fileName: recipeImgName,
         })
         .then(res => {
           if (res.status === 200) {
             toast({
-              title: 'Recipe created.',
-              description: `${recipe} added to recipes. Feel free to add more.`,
+              title: 'Recipe Image Uploaded.',
+              description: `${recipeImgName} image uploaded to AWS S3 bucket successfully. ${res.data}`,
               status: 'success',
               duration: 9000,
               isClosable: true,
             });
-            document.getElementById('step').value = '';
-            document.getElementById('ingredientName').value = '';
-            document.getElementById('recipeName').value = '';
-            setStep('');
-            setRecipe([]);
-            setIngredients([]);
-            setDirections([]);
-            setIngredientName('');
+            document.getElementById('recipeImage').value = null;
+            setRecipeImg();
+            setRecipeImgName('');
           }
+        })
+        .catch(err => {
+          console.log(err);
         });
+      // });
     }
   };
 
@@ -276,6 +361,17 @@ export function AddRecipe() {
               <Button fontSize={'18px'} onClick={handleAddDirection}>
                 Add Direction
               </Button>
+
+              <FormLabel>Recipe Image</FormLabel>
+              <input
+                w="100%"
+                type={'file'}
+                name="moneyshot"
+                id="recipeImage"
+                accept=".png, .jpg, .jpeg"
+                onChange={handleImageChange}
+              />
+
               <Button
                 fontSize={'18px'}
                 colorScheme={'green'}

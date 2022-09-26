@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text, Spinner } from '@chakra-ui/react';
+import { RecipeImg } from './RecipeImg.js';
 
 import axios from 'axios';
 const axiosClient = axios.create({
@@ -24,9 +25,8 @@ export function AllRecipes() {
     return recipes.map(recipe => {
       return (
         <Box key={recipe.name}>
-          <Text>
-            {recipe.name} {recipe._id}
-          </Text>
+          <Text>{recipe.name}</Text>
+          <RecipeImg imageKey={recipe.imageKey} />
         </Box>
       );
     });
