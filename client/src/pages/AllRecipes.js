@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Text, Spinner } from '@chakra-ui/react';
-import { RecipeImg } from './RecipeImg.js';
+import {
+  Box,
+  Text,
+  Spinner,
+  Grid,
+  GridItem,
+  Stack,
+  VStack,
+} from '@chakra-ui/react';
+import { RecipeImg } from '../components/RecipeImg.js';
 
 import axios from 'axios';
 const axiosClient = axios.create({
@@ -22,14 +30,37 @@ export function AllRecipes() {
   }, []);
 
   if (recipes.length > 0) {
-    return recipes.map(recipe => {
-      return (
-        <Box key={recipe.name}>
-          <Text>{recipe.name}</Text>
-          <RecipeImg imageKey={recipe.imageKey} />
-        </Box>
-      );
-    });
+    return (
+      <Stack
+        direction={'row'}
+        justifyContent="space-around"
+        align="top"
+        w="95%"
+        mx={'auto'}
+        spacing={4}
+      >
+        <Grid
+          templateColumns={[
+            'repeat(1, 1fr)',
+            'repeat(2, 1fr)',
+            'repeat(2, 1fr)',
+            'repeat(4, 1fr)',
+          ]}
+          gap={6}
+        >
+          {recipes.map(recipe => {
+            return (
+              <div key={recipe.name}>
+                <Text>{recipe.name}</Text>
+                <GridItem w="100%" h="100%">
+                  <RecipeImg imageKey={recipe.imageKey} />
+                </GridItem>
+              </div>
+            );
+          })}
+        </Grid>
+      </Stack>
+    );
   } else {
     return (
       <Box>

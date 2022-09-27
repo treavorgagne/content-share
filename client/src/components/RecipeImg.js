@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Spinner } from '@chakra-ui/react';
+import { Box, Spinner, Image } from '@chakra-ui/react';
 
 import axios from 'axios';
 const axiosClient = axios.create({
@@ -22,11 +22,12 @@ export function RecipeImg(props) {
   }, []);
 
   return (
-    <Box w={300} h={300}>
+    <Box w={'100%'} h={'100%'}>
       {recipeImg === '' ? (
         <Spinner />
       ) : (
-        <img
+        <Image
+          boxSize="100%"
           alt={imageKey}
           src={`data:image/jpeg;charset=utf-8;base64,${recipeImg}`}
         />
